@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Xposu</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Righteous' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Rock Salt' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+
+    <!-- Theme CSS -->
+    <link href="static/css/agency.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body id="page-top" class="index">
+
+    <!-- Navigation -->
+    <nav id="mainNav" class="navbar navbar-default navbar-custom navbar-fixed-top" style="background-color: #000000">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">Xposu</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#portfolio">View Claims</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#services">Submit a Claim</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#about">About</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+
+
+    <section id="place-results-pane" style="margin-top: 35px";>
+        <div class="container">
+            <div class="row">
+            <div class="col-sm-12 col-md-12 text-center">
+            <div class="panel panel-default">
+                <div class="panel-heading">Search Results</div>
+                <div class="panel-body">
+
+                    {% for p in places %}
+
+
+                    <div class="col-sm-6 col-md-6 text-center">
+                        {{ p.name}} &nbsp; <a data-biz="{{ p.name }}" data-address="{{ p.address }}" data-city="{{ p.city }}"title="Add this item" class="open-AddComplaintDialog btn btn-info btn-xs" href="#addComplaintDialog">Select</a>
+                        <br>
+                        {{ p.address}}
+                        <br>
+                        {{ p.city}}
+                        <div class="col-xs-12" style="height:30px;"></div>
+
+                    </div>
+
+                    {%  endfor %}
+
+
+
+                    </div>
+
+                </div>
+                </div>
+                </div>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="copyright">Copyright &copy; Your Website 2016</span>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-inline social-buttons">
+                        <li><a href="#"><i class="fa fa-twitter"></i></a>
+                        </li>
+                        <li><a href="#"><i class="fa fa-facebook"></i></a>
+                        </li>
+                        <li><a href="#"><i class="fa fa-linkedin"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <ul class="list-inline quicklinks">
+                        <li><a href="#">Privacy Policy</a>
+                        </li>
+                        <li><a href="#">Terms of Use</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="addComplaintDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        <form id="bet_form" method="post" action="/">
+            {% csrf_token %}
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Add Complaint</h4>
+          </div>
+          <div class="modal-body">
+              <section class="row">
+                <div class="col-sm-12 col-md-12 text-center" style="margin-top: -50px">
+                <input type="text" id="bn" name="bizname" value="" style="display: none"/>
+                <input type="text" id="bc" name="bizcity" value="" style="display: none"/>
+                <input type="text" id="ba" name="bizaddress" value="" style="display: none"/>
+                <label>What happened at &nbsp;</label><label id="lbltipAddedComment">Option 1</label><label>? &nbsp; &nbsp;</label>
+                  <select name="types" id="typeselect" style="width: 40%; margin-top: 10px" required onchange="populateList();">
+                        <option selected="selected" disabled value="">Complaint Type</option>
+                        <option value="cardmin">Credit Card Minimum</option>
+                        <option value="highfee">High ATM fee</option>
+                        <option value="fraud">Other Fraudulent Activity</option>
+                  </select>
+
+                </div>
+              </section>
+
+
+              <section class="row" id="ccmin" style="margin-top: -50px; display:none;">
+                  <div class="col-sm-12 col-md-12 text-center">
+                      <label>What was the "card minimum"? &nbsp; &nbsp; $</label><input type="text" name="cardminval" value="" />
+                  </div>
+              </section>
+
+              <section class="row" id="atmfee" style="margin-top: -50px; display:none;">
+                  <div class="col-sm-12 col-md-12 text-center">
+                      <label>What was the ATM fee? &nbsp; &nbsp; $</label><input type="text" name="atmfeeval" value="" />
+                  </div>
+              </section>
+
+              <section class="row" id="etcinfo" style="margin-top: -50px; display:none;">
+                  <section class="row" style="margin-top: -50px;">
+                  <div class="col-sm-12 col-md-12 text-center">
+                      <label>When did this incident occur? &nbsp; &nbsp;</label><input type="date" name="occdate">
+                  </div>
+                  </section>
+                  <section class="row" style="margin-top: -50px; height: 60px;">
+                      <div class="col-sm-12 col-md-12 text-center">
+                          <label>(Optional) Any additional comments? &nbsp; &nbsp;</label><textarea name="comments" cols="50" rows="10"></textarea>
+                      </div>
+                  </section>
+
+              </section>
+
+{#              <section class="row" id="atmfee" style="margin-top: -50px; display:none;">#}
+{#                  <div class="col-sm-12 col-md-12 text-center">#}
+{#                      <label>What was the ATM fee? &nbsp; &nbsp; $</label><input type="text" name="betval" id="atmfeeval" value="" />#}
+{#                  </div>#}
+{#              </section>#}
+
+          </div>
+          <div class="modal-footer">
+              <p>
+
+
+              </p>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="complaintsubmit">Submit</button>
+            <input type="hidden" name="complaintsubmit" value="submit" />
+          </div>
+          </form>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- jQuery -->
+    <script src="static/vendor/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="static/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+
+    <!-- Contact Form JavaScript -->
+    <script src="static/js/jqBootstrapValidation.js"></script>
+    <script src="static/js/contact_me.js"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="static/js/agency.min.js"></script>
+
+    <script>
+
+        $(document).on("click", ".open-AddComplaintDialog", function (e) {
+
+        e.preventDefault();
+
+        var _self = $(this);
+
+        var bizname = _self.data('biz');
+        var bizcity = _self.data('city');
+        var bizaddress = _self.data('address');
+        document.getElementById('lbltipAddedComment').innerHTML = bizname;
+
+        $('#bn').val(bizname);
+        $('#ba').val(bizaddress);
+        $('#bc').val(bizcity);
+
+
+
+        $(_self.attr('href')).modal('show');
+        });
+
+
+        function populateList(){
+            var ftype = document.getElementById("typeselect").value;
+            console.log(ftype);
+            if (ftype == "cardmin") {
+                console.log("cats");
+                $("#ccmin").show();
+                $("#atmfee").hide();
+                $("#etcinfo").show();
+            }
+            else if (ftype == "highfee") {
+                console.log("dogs");
+                $("#ccmin").hide();
+                $("#atmfee").show();
+                $("#etcinfo").show();
+            }
+            else {
+                $("#ccmin").hide();
+                $("#atmfee").hide();
+                $("#etcinfo").show();
+            }
+
+
+        }
+
+    </script>
+
+</body>
+
+</html>
