@@ -22,9 +22,13 @@
     <link href='https://fonts.googleapis.com/css?family=Rock Salt' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+     <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+
 
     <!-- Theme CSS -->
     <link href="static/css/agency.css" rel="stylesheet">
+     <script src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -34,6 +38,14 @@
     <![endif]-->
 
 </head>
+
+
+
+<style>
+
+    #thamap { height: 300px; }
+
+</style>
 
 <body id="page-top" class="index">
 
@@ -73,9 +85,34 @@
         <!-- /.container-fluid -->
     </nav>
 
+    <section id="place-results-map" style="margin-top: 35px";>
+        <div class="container">
+            <div class="row">
+            <div class="col-sm-12 col-md-12 text-center">
+            <div class="panel panel-default">
+                <div class="panel-heading">Search Results</div>
 
 
-    <section id="place-results-pane" style="margin-top: 35px";>
+
+                <div class="panel-body">
+
+                    <div id="thamap">
+
+                    </div>
+
+
+
+                    </div>
+
+                </div>
+                </div>
+                </div>
+
+        </div>
+
+    </section>
+
+    <section id="place-results-pane" style="margin-top: 10px";>
         <div class="container">
             <div class="row">
             <div class="col-sm-12 col-md-12 text-center">
@@ -85,9 +122,14 @@
 
                     {% for p in places %}
 
+                    <input type="hidden" id="myVar" name="variable" value="{{p}}">
+
 
                     <div class="col-sm-6 col-md-6 text-center">
-                        {{ p.name}} &nbsp; <a data-biz="{{ p.name }}" data-address="{{ p.address }}" data-city="{{ p.city }}"title="Add this item" class="open-AddComplaintDialog btn btn-info btn-xs" href="#addComplaintDialog">Select</a>
+                        {% if p.name in x_names %}
+                            <img src='/static/img/red-x.png' style="height:20px;">
+                        {% endif %}
+                        {{ p.name}} &nbsp; <a data-biz="{{ p.name }}" data-address="{{ p.address }}" data-lat="{{ p.lat }}" data-lon="{{ p.lon }}" data-city="{{ p.city }}"title="Add this item" class="open-AddComplaintDialog btn btn-info btn-xs" href="#addComplaintDialog">Select</a>
                         <br>
                         {{ p.address}}
                         <br>
@@ -154,6 +196,8 @@
                 <input type="text" id="bn" name="bizname" value="" style="display: none"/>
                 <input type="text" id="bc" name="bizcity" value="" style="display: none"/>
                 <input type="text" id="ba" name="bizaddress" value="" style="display: none"/>
+                <input type="text" id="bla" name="bizlat" value="" style="display: none"/>
+                <input type="text" id="blo" name="bizlon" value="" style="display: none"/>
                 <label>What happened at &nbsp;</label><label id="lbltipAddedComment">Option 1</label><label>? &nbsp; &nbsp;</label>
                   <select name="types" id="typeselect" style="width: 40%; margin-top: 10px" required onchange="populateList();">
                         <option selected="selected" disabled value="">Complaint Type</option>
@@ -169,6 +213,7 @@
               <section class="row" id="ccmin" style="margin-top: -50px; display:none;">
                   <div class="col-sm-12 col-md-12 text-center">
                       <label>What was the "card minimum"? &nbsp; &nbsp; $</label><input type="text" name="cardminval" value="" />
+                        <input type="hidden" id="myVar" name="variable" value="{{ variable }}">
                   </div>
               </section>
 
@@ -231,6 +276,98 @@
 
     <script>
 
+
+        var contains = function(needle) {
+            // Per spec, the way to identify NaN is that it is not equal to itself
+            var findNaN = needle !== needle;
+            var indexOf;
+
+            if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+                indexOf = Array.prototype.indexOf;
+            } else {
+                indexOf = function(needle) {
+                    var i = -1, index = -1;
+
+                    for(i = 0; i < this.length; i++) {
+                        var item = this[i];
+
+                        if((findNaN && item !== item) || item === needle) {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    return index;
+                };
+            }
+
+            return indexOf.call(this, needle) > -1;
+        };
+
+        var jsop = {{json_data|safe}}
+        var xposed = {{xposed_data|safe}}
+        var xposed_names = {{xposed_names|safe}}
+
+        var red_x = L.icon({
+            iconUrl: '/static/img/red-x.png',
+{#            shadowUrl: 'leaf-shadow.png',#}
+
+            iconSize:     [24, 55], // size of the icon
+{#            shadowSize:   [50, 64], // size of the shadow#}
+            iconAnchor:   [15, 45], // point of the icon which will correspond to marker's location
+{#            shadowAnchor: [4, 62],  // the same for the shadow#}
+            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+        });
+
+        var mymap = L.map('thamap');
+
+        var tilez = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(mymap);
+
+        mymap.locate({setView: true, maxZoom: 16});
+
+        for (i = 0; i < jsop.length; i++) {
+
+            index = contains.call(xposed_names, jsop[i]['name']);
+            if (index == false) {
+
+                console.log(index)
+                console.log(jsop[i])
+
+                var cname = jsop[i]['name'];
+                var cadd = jsop[i]['address'];
+                var ccity = jsop[i]['city'];
+                var marker = L.marker([jsop[i]['lat'], jsop[i]['lon']]).addTo(mymap).bindPopup(cname + "<br>" + cadd + '<br><a data-biz="' + cname + '"data-address="' + cadd + 'data-city="' + ccity + '" title="Add this item" class="open-AddComplaintDialog btn btn-info btn-xs" href="#addComplaintDialog">Select</a>')
+            }
+            else {
+                console.log(index)
+                console.log(jsop[i])
+            }
+            }
+
+        for (i = 0; i < xposed.length; i++) {
+                var dname = xposed[i]['name'];
+                var dadd = xposed[i]['address'];
+                var dcity = xposed[i]['city'];
+                var x_marker = L.marker([xposed[i]['lat'], xposed[i]['lon']], {icon: red_x})
+                        .addTo(mymap)
+                        .bindPopup(dname + "<br>" + dadd + '<br><a data-biz="' + dname
+                                + '"data-address="' + dadd + 'data-city="' + dcity
+                                + '" title="Add this item" class="open-AddComplaintDialog btn btn-info btn-xs" href="#addComplaintDialog">Select</a>')
+            }
+
+
+
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+
+            L.circle(e.latlng, radius).addTo(mymap).bindPopup("You are within " + radius + " meters from this point").openPopup();
+        }
+
+        mymap.on('locationfound', onLocationFound);
+
         $(document).on("click", ".open-AddComplaintDialog", function (e) {
 
         e.preventDefault();
@@ -240,11 +377,15 @@
         var bizname = _self.data('biz');
         var bizcity = _self.data('city');
         var bizaddress = _self.data('address');
+        var blat = _self.data('lat');
+        var blon = _self.data('lon');
         document.getElementById('lbltipAddedComment').innerHTML = bizname;
 
         $('#bn').val(bizname);
         $('#ba').val(bizaddress);
         $('#bc').val(bizcity);
+        $('#bla').val(blat);
+        $('#blo').val(blon);
 
 
 

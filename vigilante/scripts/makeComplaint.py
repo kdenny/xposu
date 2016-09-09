@@ -1,6 +1,5 @@
 # Django
 # import time
-from datetime import *
 from django.views.generic import UpdateView, ListView
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.contrib.auth import logout
@@ -21,13 +20,21 @@ from django.http import JsonResponse
 import simplejson as json
 import requests
 from pprint import pprint
+import oauth2
+import requests
+import polyline
+from polyline.codec import PolylineCodec
+from django.core.serializers import serialize
+import codecs
+import sys
 
 from vigilante.models import *
 
 
 
-def complain(bizname,address,city,ctype, value, odate, comments):
+def complain(bizname,address,city,ctype, value, odate, comments,lat,lon):
 
+    tdate = odate
 
     curstore = Store.objects.filter(name=bizname)
 
@@ -35,11 +42,11 @@ def complain(bizname,address,city,ctype, value, odate, comments):
 
     if len(curstore) == 0:
         ## Build game object
-        store = Store()
-        store.name = bizname
-        store.address = address
-        store.city = city
-        store.save()
+        sp = Store()
+        sp.name = bizname
+        sp.address = address
+        sp.city = city
+        sp.save()
 
     curstore = Store.objects.filter(name=bizname,address=address)
 
@@ -53,9 +60,9 @@ def complain(bizname,address,city,ctype, value, odate, comments):
         if not r.complaint_set.exists():
 
             complaint = r.complaint_set.create(type=ctype,
-                                         value=value
-                                         # date=odate,
-                                         # comments=comments
+                                         value=value,
+                                         date=odate,
+                                         comments=comments
                                                )
 
         else:
@@ -63,7 +70,8 @@ def complain(bizname,address,city,ctype, value, odate, comments):
             complaint.store = r
             complaint.type = ctype
             complaint.value = value
-            # complaint.date = odate
+            complaint.date = odate
+            complaint.comments = comments
             complaint.save()
 
             r.complaint_set.add(complaint)

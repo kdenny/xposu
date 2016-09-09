@@ -3,5 +3,8 @@ from vigilante.models import Store, Complaint
 
 # Register your models here.
 
-admin.site.register(Store)
+from leaflet.admin import LeafletGeoAdmin
+from django.contrib import admin
+
+admin.site.register(Store, LeafletGeoAdmin)
 admin.site.register(Complaint)

@@ -50,6 +50,8 @@ def search(term,location):
     for b in bizlist:
         bdict = {}
         bdict['name'] = b.name
+        bdict['lat'] = float(b.location.coordinate.latitude)
+        bdict['lon'] = float(b.location.coordinate.longitude)
         bdict['city'] = "{0}, {1}".format(b.location.city, b.location.state_code)
         bdict['address'] = b.location.address[0]
 
@@ -90,6 +92,28 @@ def search2(term, location):
         # 'radius_filter': metradius,
         'll': location.replace(' ', '+').replace(',',''),
         'limit': SEARCH_LIMIT
+    }
+    return request(API_HOST, SEARCH_PATH, url_params=url_params)
+
+
+def locationsearch(location):
+    """Query the Search API by a search term and location.
+
+    Args:
+        term (str): The search term passed to the API.
+        location (str): The search location passed to the API.
+        distance (int): The search distance to query from each route point.
+
+    Returns:
+        dict: The JSON response from the request.
+    """
+
+    print location
+
+    url_params = {
+        'radius_filter': 2000,
+        'll': location.replace(' ', '+').replace(',',''),
+        'limit': 10
     }
     return request(API_HOST, SEARCH_PATH, url_params=url_params)
 

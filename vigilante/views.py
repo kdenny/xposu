@@ -2,6 +2,7 @@ from django.shortcuts import render, render_to_response
 from django.template import RequestContext, loader
 # from vigilante import scripts
 from vigilante.models import *
+import simplejson
 
 from scripts.yelp_query import search2, search
 from scripts.makeComplaint import complain
@@ -35,9 +36,37 @@ def index(request):
                 else:
                     location = city
                 yelpresult = search(bizname,location)
+
+                xposed = []
+                yelpresult2 = yelpresult
+                xposed_names = []
+
+
+
+                for biz in yelpresult:
+                    name = biz['name']
+                    address = biz['address']
+                    current_store = Store.objects.filter(name=name, address=address)
+                    if current_store:
+                        xposed.append(biz)
+                        xposed_names.append(name)
+                        # yelpresult2.remove(biz)
+
+
+
+
+                new_json = simplejson.dumps(yelpresult2)
+                xposed_json = simplejson.dumps(xposed)
+                xposed_n = simplejson.dumps(xposed_names)
+
+
                 pprint(yelpresult)
 
-            placedata = { "places" : yelpresult}
+            placedata = { "places" : yelpresult, "x_names" : xposed_names, "json_data" : new_json, "xposed_data" : xposed_json, "xposed_names" : xposed_n}
+
+            ## Geocode or get lat-lon of results
+            ##
+
 
             resp = placeresults(request, placedata)
 
@@ -49,12 +78,16 @@ def index(request):
             bizname = str(request.POST.get('bizname'))
             address = str(request.POST.get('bizaddress'))
             city = str(request.POST.get('bizcity'))
+            lat = float(str((request.POST.get('bizlat'))))
+            lon = float(str((request.POST.get('bizlon'))))
 
             # print(address)
             if ctype == 'cardmin':
                 value = float(request.POST.get('cardminval'))
-            if ctype == 'highfee':
+            elif ctype == 'highfee':
                 value = float(request.POST.get('atmfeeval'))
+            else:
+                value = 0.0
 
             odate = str(request.POST.get('occdate'))
 
@@ -63,7 +96,7 @@ def index(request):
             if comments == 'None':
                 comments = ''
 
-            complain(bizname,address,city,ctype,value,odate,comments)
+            complain(bizname,address,city,ctype,value,odate,comments,lat,lon)
 
             resp = render_to_response('static/index.html', placedata, context_instance=RequestContext(request))
 
@@ -81,7 +114,6 @@ def index(request):
 
 
 def placeresults(request, placedata):
-
 
 
     return render_to_response('static/placeresults.html', placedata, context_instance=RequestContext(request))
